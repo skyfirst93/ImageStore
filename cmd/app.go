@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"sync"
-	api "ImageStore/pkg/imagestoreapi"
+	api "ImageStore/pkg/routeapis"
 )
 
 func main() {
