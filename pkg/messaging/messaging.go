@@ -1,6 +1,7 @@
 package messaging
 
 import (
+	"ImageStore/pkg/utils"
 	"fmt"
 	"os"
 	"third-party/src/confluent-kafka-go/kafka"

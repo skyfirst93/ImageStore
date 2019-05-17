@@ -1,9 +1,9 @@
 package main
 
 import (
+	api "ImageStore/pkg/routeapis"
 	"fmt"
 	"sync"
-	api "ImageStore/pkg/routeapis"
 )
 
 func main() {

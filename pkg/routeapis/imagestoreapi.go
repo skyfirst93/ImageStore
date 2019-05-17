@@ -1,10 +1,10 @@
 package imagestoreapi
 
 import (
+	"ImageStore/pkg/apihandler"
 	"fmt"
 	"net/http"
 	"sync"
-	api "ImageStore/pkg/apihandler"
 
 	"github.com/gorilla/mux"
 )
@@ -26,17 +26,17 @@ func RunAPIOnRouter(r *mux.Router) {
 
 	apirouter := r.PathPrefix("/api/store").Subrouter()
 
-	apirouter.Methods("POST").Path("/create/album").HandlerFunc(api.CreateAlbumHandler)
-	apirouter.Methods("DELETE").Path("/delete/album").HandlerFunc(api.DeleteAlbumHandler)
+	apirouter.Methods("POST").Path("/create/album").HandlerFunc(apihandler.CreateAlbumHandler)
+	apirouter.Methods("DELETE").Path("/delete/album").HandlerFunc(apihandler.DeleteAlbumHandler)
 
-	apirouter.Methods("POST").Path("/create/image").HandlerFunc(api.CreateImageHandler)
-	apirouter.Methods("DELETE").Path("/delete/image").HandlerFunc(api.DeleteImageHandler)
+	apirouter.Methods("POST").Path("/create/image").HandlerFunc(apihandler.CreateImageHandler)
+	apirouter.Methods("DELETE").Path("/delete/image").HandlerFunc(apihandler.DeleteImageHandler)
 
-	apirouter.Methods("GET").Path("/images").HandlerFunc(api.GetImages)
-	apirouter.Methods("GET").Path("/images/{id}").HandlerFunc(api.GetImagesById)
-	apirouter.Methods("GET").Path("/albums").HandlerFunc(api.GetAlbums)
-	apirouter.Methods("GET").Path("/albums/{id}").HandlerFunc(api.GetAlbumsById)
+	apirouter.Methods("GET").Path("/images").HandlerFunc(apihandler.GetImages)
+	apirouter.Methods("GET").Path("/images/{id}").HandlerFunc(apihandler.GetImagesById)
+	apirouter.Methods("GET").Path("/albums").HandlerFunc(apihandler.GetAlbums)
+	apirouter.Methods("GET").Path("/albums/{id}").HandlerFunc(apihandler.GetAlbumsById)
 
-	apirouter.Methods("GET").Path("/notification/create").HandlerFunc(api.GetCreateNotification)
-	apirouter.Methods("GET").Path("/notification/delete").HandlerFunc(api.GetDeleteNotification)
+	apirouter.Methods("GET").Path("/notification/create").HandlerFunc(apihandler.GetCreateNotification)
+	apirouter.Methods("GET").Path("/notification/delete").HandlerFunc(apihandler.GetDeleteNotification)
 }
