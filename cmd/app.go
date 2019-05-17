@@ -1,7 +1,7 @@
 package main
 
 import (
-	api "ImageStore/pkg/routeapis"
+	api "ImageStore/pkg/apiroutes"
 	"fmt"
 	"sync"
 )

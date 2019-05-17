@@ -1,4 +1,4 @@
-package imagestoreapi
+package apiroutes
 
 import (
 	"ImageStore/pkg/apihandler"
@@ -33,9 +33,8 @@ func RunAPIOnRouter(r *mux.Router) {
 	apirouter.Methods("DELETE").Path("/delete/image").HandlerFunc(apihandler.DeleteImageHandler)
 
 	apirouter.Methods("GET").Path("/images").HandlerFunc(apihandler.GetImages)
-	apirouter.Methods("GET").Path("/images/{id}").HandlerFunc(apihandler.GetImagesById)
-	apirouter.Methods("GET").Path("/albums").HandlerFunc(apihandler.GetAlbums)
-	apirouter.Methods("GET").Path("/albums/{id}").HandlerFunc(apihandler.GetAlbumsById)
+	apirouter.Methods("GET").Path("/images/{name}").HandlerFunc(apihandler.GetImagesByName)
+	apirouter.Methods("GET").Path("/albums").HandlerFunc(apihandler.GetAlbumsList)
 
 	apirouter.Methods("GET").Path("/notification/create").HandlerFunc(apihandler.GetCreateNotification)
 	apirouter.Methods("GET").Path("/notification/delete").HandlerFunc(apihandler.GetDeleteNotification)
