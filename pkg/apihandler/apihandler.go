@@ -1,6 +1,7 @@
 package apihandler
 
 import (
+	"ImageStore/pkg/messaging"
 	"encoding/json"
 	"fmt"
 	"image"
@@ -11,50 +12,74 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/gorilla/mux"
 )
+
 //Set this as a Environment variable
 var storagePath = "/akash"
 
+//Notification struct defines the structure for create and delete notification
+type Notification struct {
+	NotiType  string
+	info      string
+	timestamp string
+}
+
+//MultiValuesResponse defines structure for multiple values of Images and Albums
 type MultiValuesResponse struct {
-	Values    []string
-	HTTPStatus int
+	Values     []string `json:"values"`
+	HTTPStatus int      `json:"HttpStatus"`
 }
 
+//Response structure defines basic message and status of response
 type Response struct {
-        Message    string
-        HTTPStatus int
+	Message    string `json:"message"`
+	HTTPStatus int    `json:"HttpStatus"`
 }
 
+//ErrorResponse structure defines error message and status of response
 type ErrorResponse struct {
-	Error      error
-	HTTPStatus int
+	Error      error `json:"error"`
+	HTTPStatus int   `json:"HttpStatus"`
 }
 
+//writeResponse write the message passed and status to http Response writer
 func writeResponse(w http.ResponseWriter, message string, status int) {
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(Response{Message: message, HTTPStatus: status})
-}
-func writeMultiValuesResponse(w http.ResponseWriter, values []string, status int) {
-        w.WriteHeader(status)
-        json.NewEncoder(w).Encode(MultiValuesResponse{Values: values, HTTPStatus: status})
+	fmt.Println("999")
 }
 
+//writeMultiValuesResponse write a slice of values(images/albums) and http
+//to http Response writer
+func writeMultiValuesResponse(w http.ResponseWriter, values []string, status int) {
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(MultiValuesResponse{Values: values, HTTPStatus: status})
+}
+
+//writeErrorResponse writes error message and http status
+//to http Response writer
 func writeErrorResponse(w http.ResponseWriter, errorMessage error, status int) {
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(ErrorResponse{Error: errorMessage, HTTPStatus: status})
 }
 
-func checkIfPathExists(dir string) bool {
-	if _, err := os.Stat(dir); err == nil {
+//checkIfPathExists function check if the path passed exist and return true
+// else return false
+func checkIfPathExists(path string) bool {
+	if _, err := os.Stat(path); err == nil {
 		return true
 	}
 	return false
 }
 
+//CreateAlbumHandler is handler function for creating an Album
 func CreateAlbumHandler(w http.ResponseWriter, req *http.Request) {
-	dir := "akash"
-	if present := checkIfPathExists(storagePath+"/"+dir); !present {
-		if err := os.MkdirAll(storagePath+"/"+dir, 0755); err != nil {
+	params := mux.Vars(req)
+	albumPath := storagePath + "/" + params["albumname"]
+	if albumPresent := checkIfPathExists(albumPath); !albumPresent {
+		if err := os.MkdirAll(albumPath, 0755); err != nil {
 			log.Fatal(err)
 		}
 		writeResponse(w, "Album Created", http.StatusOK)
@@ -64,10 +89,13 @@ func CreateAlbumHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func CreateImageHandler(w http.ResponseWriter, req *http.Request) {
-	dir := "akash"
-	imageName := "akash.png"
-	if albumpresent := checkIfPathExists(storagePath + "/" +dir); albumpresent {
-		if imagePresent := checkIfPathExists(storagePath + "/" +dir + "/" + imageName); !imagePresent {
+	params := mux.Vars(req)
+
+	albumPath := storagePath + "/" + params["albumname"]
+	imagePath := albumPath + "/" + params["imagename"]
+
+	if albumpresent := checkIfPathExists(albumPath); albumpresent {
+		if imagePresent := checkIfPathExists(imagePath); !imagePresent {
 			//Create new image with the values being top left corner x,y and bottem right x,y
 			newImage := image.NewRGBA(image.Rect(0, 0, 240, 240))
 			//Create a variable with RGBA combinations
@@ -75,7 +103,7 @@ func CreateImageHandler(w http.ResponseWriter, req *http.Request) {
 			//Use Draw function to create the laypout and fill colors
 			draw.Draw(newImage, newImage.Bounds(), &image.Uniform{blue}, image.ZP, draw.Src)
 			//Create a file with the Name given by user
-			filepointer, err := os.Create(storagePath + "/" +dir +"/"+ imageName)
+			filepointer, err := os.Create(imagePath)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -84,6 +112,7 @@ func CreateImageHandler(w http.ResponseWriter, req *http.Request) {
 				log.Fatal(err)
 			}
 			writeResponse(w, "Image created", http.StatusOK)
+			messaging.WriteMessage("Image Created", "IMAGE")
 			return
 		}
 		writeResponse(w, "Image Already Present", http.StatusConflict)
@@ -93,11 +122,12 @@ func CreateImageHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func DeleteAlbumHandler(w http.ResponseWriter, req *http.Request) {
-	dir := "akash"
-	if present := checkIfPathExists(storagePath + "/" +dir); present {
+	params := mux.Vars(req)
+	albumPath := storagePath + "/" + params["albumname"]
+	if present := checkIfPathExists(albumPath); present {
 		// Remove the file.
-		if err := os.Remove(storagePath + "/" +dir); err != nil {
-			writeErrorResponse(w,err,http.StatusInternalServerError)
+		if err := os.Remove(albumPath); err != nil {
+			writeErrorResponse(w, err, http.StatusInternalServerError)
 			return
 		}
 		writeResponse(w, "Album Deleted", http.StatusOK)
@@ -107,16 +137,20 @@ func DeleteAlbumHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func DeleteImageHandler(w http.ResponseWriter, req *http.Request) {
-	dir := "akash"
-	imageName := "akash.png"
-	if albumpresent := checkIfPathExists(storagePath + "/" +dir); albumpresent {
-		if imagePresent := checkIfPathExists(storagePath + "/" + dir + "/" + imageName); imagePresent {
+	params := mux.Vars(req)
+
+	albumPath := storagePath + "/" + params["albumname"]
+	imagePath := albumPath + "/" + params["imagename"]
+
+	if albumpresent := checkIfPathExists(albumPath); albumpresent {
+		if imagePresent := checkIfPathExists(imagePath); imagePresent {
 			// Remove the file.
-			if err := os.Remove(storagePath + "/" +dir+ "/" + imageName); err != nil {
-				writeErrorResponse(w,err,http.StatusInternalServerError)
+			if err := os.Remove(imagePath); err != nil {
+				writeErrorResponse(w, err, http.StatusInternalServerError)
 				return
 			}
 			writeResponse(w, "Image deleted", http.StatusOK)
+			messaging.WriteMessage("Image Deleted", "DELETE-IMAGE")
 			return
 		} else {
 			writeResponse(w, "Image Not Present", http.StatusConflict)
@@ -130,59 +164,78 @@ func GetAlbumsList(w http.ResponseWriter, req *http.Request) {
 	var albums []string
 	files, err := ioutil.ReadDir(storagePath)
 	if err != nil {
-		writeErrorResponse(w,err,http.StatusInternalServerError)
-                return
+		writeErrorResponse(w, err, http.StatusInternalServerError)
+		return
 	}
 	for _, filePointer := range files {
 		albums = append(albums, filePointer.Name())
 	}
 	writeMultiValuesResponse(w, albums, http.StatusOK)
-	//Note return all albums 
+	//Note return all albums
 }
 
 func GetImages(w http.ResponseWriter, req *http.Request) {
-        var images []string
-	albumName:="akash"
-	if albumpresent := checkIfPathExists(storagePath + "/" +dir); albumpresent {
-		files, err := ioutil.ReadDir(storagePath+"/"+albumName)
+
+	var images []string
+
+	params := mux.Vars(req)
+	albumPath := storagePath + "/" + params["albumname"]
+
+	if albumpresent := checkIfPathExists(albumPath); albumpresent {
+		files, err := ioutil.ReadDir(albumPath)
 		if err != nil {
-			writeErrorResponse(w,err,http.StatusInternalServerError)
+			writeErrorResponse(w, err, http.StatusInternalServerError)
 			return
 		}
 		for _, filePointer := range files {
 			images = append(images, filePointer.Name())
 		}
 		writeMultiValuesResponse(w, images, http.StatusOK)
-		//Note return images not list of images 
+		return
+		//Note return images not list of images
 	}
 	writeResponse(w, "Album not Present", http.StatusConflict)
 
 }
 
 func GetImagesByName(w http.ResponseWriter, req *http.Request) {
-        dir := "akash"
-        imageName := "akash.png"
 	var image []string
-        if albumpresent := checkIfPathExists(storagePath + "/" +dir); albumpresent {
-                if imagePresent := checkIfPathExists(storagePath + "/" +dir + "/" + imageName); imagePresent {
-			// Note return image not name of images 
-			image = append(image,imageName)
+
+	params := mux.Vars(req)
+	albumPath := storagePath + "/" + params["albumname"]
+	imagePath := albumPath + "/" + params["imagename"]
+
+	if albumpresent := checkIfPathExists(albumPath); albumpresent {
+		if imagePresent := checkIfPathExists(imagePath); imagePresent {
+			// Note return image not name of images
+			image = append(image, params["imagename"])
 			writeMultiValuesResponse(w, image, http.StatusOK)
-		        return
+			return
 		}
 		writeResponse(w, "Image not Present", http.StatusConflict)
 		return
-        }
-        writeResponse(w, "Album not Present", http.StatusConflict)
+	}
+	writeResponse(w, "Album not Present", http.StatusConflict)
+	//Note the return status 
 
 }
-// Note to put check on startup for storage path 
-func GetCreateNotification(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("222")
 
+// Note to put check on startup for storage path
+func GetCreateNotification(w http.ResponseWriter, req *http.Request) {
+	message := messaging.ReadMessage("IMAGE")
+	if message != nil {
+		writeMultiValuesResponse(w, message, http.StatusOK)
+		return
+	}
+	writeResponse(w, "No Create Notification", http.StatusConflict)
+        //Note the return status
 }
 
 func GetDeleteNotification(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("222")
-
+	if message := messaging.ReadMessage("DELETE-IMAGE"); message != nil {
+		writeMultiValuesResponse(w, message, http.StatusOK)
+		return
+	}
+	writeResponse(w, "No Delete Notification", http.StatusConflict)
+        //Note the return status
 }
