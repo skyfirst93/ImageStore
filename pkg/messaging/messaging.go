@@ -1,31 +1,28 @@
 package messaging
 
 import (
+	"ImageStore/pkg/utils"
 	"fmt"
 	"os"
 	"third-party/src/confluent-kafka-go/kafka"
 )
 
-var ProducerObject *kafka.Producer
-var ConsumerObject *kafka.Consumer
-
 //InitProducer creates and returns the Producer object
 func InitProducer(broker string) {
 	var err error
-	ProducerObject, err = kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": broker})
+	utils.ProducerObject, err = kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": broker})
 	if err != nil {
 		fmt.Printf("Failed to create producer: %s\n", err)
 		os.Exit(1)
 	}
-	fmt.Printf("Created Producer %v\n", ProducerObject)
-
+	//Note implement logging
 }
 
 //InitConsumer creates and returns the Consumer object
 func InitConsumer(broker, group string) {
 	var err error
 	//Note change the default offset
-	ConsumerObject, err = kafka.NewConsumer(&kafka.ConfigMap{
+	utils.ConsumerObject, err = kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers":               broker,
 		"group.id":                        group,
 		"session.timeout.ms":              6000,
@@ -40,8 +37,6 @@ func InitConsumer(broker, group string) {
 		fmt.Fprintf(os.Stderr, "Failed to create consumer: %s\n", err)
 		os.Exit(1)
 	}
-
-	fmt.Printf("Created Consumer %T\n", ConsumerObject)
 }
 
 func WriteMessage(message string, topic string) {
@@ -49,7 +44,7 @@ func WriteMessage(message string, topic string) {
 	// .Events channel is used.
 	deliveryChan := make(chan kafka.Event)
 	//Note
-	if err := ProducerObject.Produce(&kafka.Message{
+	if err := utils.ProducerObject.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 		Value:          []byte(message),
 		Headers:        []kafka.Header{{Key: "myTestHeader", Value: []byte("header values are binary")}},
@@ -75,21 +70,21 @@ func WriteMessage(message string, topic string) {
 func ReadMessage(topic string) []string {
 	var returnMessage []string
 
-	if err := ConsumerObject.Subscribe(topic, nil); err != nil {
+	if err := utils.ConsumerObject.Subscribe(topic, nil); err != nil {
 		fmt.Println("error subscribing to topic")
 	}
 
 	run := true
 	for run == true {
 		select {
-		case ev := <-ConsumerObject.Events():
+		case ev := <-utils.ConsumerObject.Events():
 			switch e := ev.(type) {
 			case kafka.AssignedPartitions:
 				fmt.Fprintf(os.Stderr, "%% %v\n", e)
-				ConsumerObject.Assign(e.Partitions)
+				utils.ConsumerObject.Assign(e.Partitions)
 			case kafka.RevokedPartitions:
 				fmt.Fprintf(os.Stderr, "%% %v\n", e)
-				ConsumerObject.Unassign()
+				utils.ConsumerObject.Unassign()
 			case *kafka.Message:
 				fmt.Printf("%% Message on %s:\n%s\n",
 					e.TopicPartition, string(e.Value))
@@ -103,18 +98,16 @@ func ReadMessage(topic string) []string {
 			}
 		}
 	}
-	if err := ConsumerObject.Unsubscribe(); err != nil {
+	if err := utils.ConsumerObject.Unsubscribe(); err != nil {
 		fmt.Println("error Un-subscribing to topic")
 	}
-	fmt.Printf("Closing consumer\n")
-	//ConsumerObject.Close()
 	return returnMessage
 }
 
 func DisconnectConsumer() {
-	ConsumerObject.Close()
+	utils.ConsumerObject.Close()
 }
 
 func DisconnectProducer() {
-	ProducerObject.Close()
+	utils.ProducerObject.Close()
 }

@@ -3,13 +3,26 @@ package main
 import (
 	api "ImageStore/pkg/apiroutes"
 	"ImageStore/pkg/messaging"
+	"ImageStore/pkg/utils"
 	"fmt"
+	"os"
 	"sync"
 )
-func init(){
-	messaging.InitProducer("127.0.0.1:9092")
-	messaging.InitConsumer("127.0.0.1:9092", "group")
 
+func init() {
+	utils.MessageQueueAddr = os.Getenv("KAFKA_SERVICE")
+	if utils.MessageQueueAddr == "" {
+		fmt.Println("Environment variable KAFKA_SERVICE undefined")
+		os.Exit(1)
+	}
+	utils.StoragePath = os.Getenv("STORAGE_PATH")
+	if utils.StoragePath == "" {
+		fmt.Println("Environment variable STORAGE_PATH undefined")
+		os.Exit(1)
+	}
+
+	messaging.InitProducer(utils.MessageQueueAddr)
+	messaging.InitConsumer(utils.MessageQueueAddr, "group")
 }
 
 func main() {

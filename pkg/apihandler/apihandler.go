@@ -2,6 +2,7 @@ package apihandler
 
 import (
 	"ImageStore/pkg/messaging"
+	"ImageStore/pkg/utils"
 	"encoding/json"
 	"fmt"
 	"image"
@@ -15,9 +16,6 @@ import (
 
 	"github.com/gorilla/mux"
 )
-
-//Set this as a Environment variable
-var storagePath = "/akash"
 
 //Notification struct defines the structure for create and delete notification
 type Notification struct {
@@ -48,7 +46,6 @@ type ErrorResponse struct {
 func writeResponse(w http.ResponseWriter, message string, status int) {
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(Response{Message: message, HTTPStatus: status})
-	fmt.Println("999")
 }
 
 //writeMultiValuesResponse write a slice of values(images/albums) and http
@@ -77,7 +74,7 @@ func checkIfPathExists(path string) bool {
 //CreateAlbumHandler is handler function for creating an Album
 func CreateAlbumHandler(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
-	albumPath := storagePath + "/" + params["albumname"]
+	albumPath := utils.StoragePath + "/" + params["albumname"]
 	if albumPresent := checkIfPathExists(albumPath); !albumPresent {
 		if err := os.MkdirAll(albumPath, 0755); err != nil {
 			log.Fatal(err)
@@ -91,7 +88,7 @@ func CreateAlbumHandler(w http.ResponseWriter, req *http.Request) {
 func CreateImageHandler(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 
-	albumPath := storagePath + "/" + params["albumname"]
+	albumPath := utils.StoragePath + "/" + params["albumname"]
 	imagePath := albumPath + "/" + params["imagename"]
 
 	if albumpresent := checkIfPathExists(albumPath); albumpresent {
@@ -123,7 +120,7 @@ func CreateImageHandler(w http.ResponseWriter, req *http.Request) {
 
 func DeleteAlbumHandler(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
-	albumPath := storagePath + "/" + params["albumname"]
+	albumPath := utils.StoragePath + "/" + params["albumname"]
 	if present := checkIfPathExists(albumPath); present {
 		// Remove the file.
 		if err := os.Remove(albumPath); err != nil {
@@ -139,7 +136,7 @@ func DeleteAlbumHandler(w http.ResponseWriter, req *http.Request) {
 func DeleteImageHandler(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 
-	albumPath := storagePath + "/" + params["albumname"]
+	albumPath := utils.StoragePath + "/" + params["albumname"]
 	imagePath := albumPath + "/" + params["imagename"]
 
 	if albumpresent := checkIfPathExists(albumPath); albumpresent {
@@ -162,7 +159,7 @@ func DeleteImageHandler(w http.ResponseWriter, req *http.Request) {
 
 func GetAlbumsList(w http.ResponseWriter, req *http.Request) {
 	var albums []string
-	files, err := ioutil.ReadDir(storagePath)
+	files, err := ioutil.ReadDir(utils.StoragePath)
 	if err != nil {
 		writeErrorResponse(w, err, http.StatusInternalServerError)
 		return
@@ -179,7 +176,7 @@ func GetImages(w http.ResponseWriter, req *http.Request) {
 	var images []string
 
 	params := mux.Vars(req)
-	albumPath := storagePath + "/" + params["albumname"]
+	albumPath := utils.StoragePath + "/" + params["albumname"]
 
 	if albumpresent := checkIfPathExists(albumPath); albumpresent {
 		files, err := ioutil.ReadDir(albumPath)
@@ -195,28 +192,28 @@ func GetImages(w http.ResponseWriter, req *http.Request) {
 		//Note return images not list of images
 	}
 	writeResponse(w, "Album not Present", http.StatusConflict)
-
 }
 
 func GetImagesByName(w http.ResponseWriter, req *http.Request) {
 	var image []string
 
 	params := mux.Vars(req)
-	albumPath := storagePath + "/" + params["albumname"]
+	albumPath := utils.StoragePath + "/" + params["albumname"]
 	imagePath := albumPath + "/" + params["imagename"]
 
 	if albumpresent := checkIfPathExists(albumPath); albumpresent {
 		if imagePresent := checkIfPathExists(imagePath); imagePresent {
 			// Note return image not name of images
 			image = append(image, params["imagename"])
-			writeMultiValuesResponse(w, image, http.StatusOK)
+			http.ServeFile(w, req, imagePath)
+			//writeMultiValuesResponse(w, image, http.StatusOK)
 			return
 		}
 		writeResponse(w, "Image not Present", http.StatusConflict)
 		return
 	}
 	writeResponse(w, "Album not Present", http.StatusConflict)
-	//Note the return status 
+	//Note the return status
 
 }
 
@@ -228,7 +225,7 @@ func GetCreateNotification(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	writeResponse(w, "No Create Notification", http.StatusConflict)
-        //Note the return status
+	//Note the return status
 }
 
 func GetDeleteNotification(w http.ResponseWriter, req *http.Request) {
@@ -237,5 +234,11 @@ func GetDeleteNotification(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	writeResponse(w, "No Delete Notification", http.StatusConflict)
-        //Note the return status
+	//Note the return status
+}
+
+func Swagger(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("hepepepepeppepep")
+	w.Header().Set("Content-Type", "application/json")
+	http.ServeFile(w, r, "swagger.json")
 }
