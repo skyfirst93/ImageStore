@@ -1,0 +1,53 @@
+#
+.PHONY: doc exe
+
+# Source files in the current directory
+SOURCES = $(wildcard $(CURDIR)/*.go)
+
+##############################################################################
+# For generating docs
+# The current directory is assumed to be the package name
+CUR_DIR=$(shell basename $(CURDIR))
+
+# We need to copy the temporarily to GOPATH as godocdown expects the package
+# to be present in this location
+TEMP_DIR=$(GOPATH)/src/$(CUR_DIR)
+
+# Name of the documentation file to be generated
+DOC_FILE=README.md
+
+#Name of the file where copyright for markdown files are present
+MD_COPYRIGHT_FILE=copyright.md
+
+ifeq ($(CUR_DIR), cmd)
+	CUR_DIR=main
+endif
+
+doc: $(CURDIR)/$(DOC_FILE)
+
+$(CURDIR)/$(DOC_FILE): $(SOURCES)
+	@echo "Generating doc for $(CUR_DIR) tmp=$(TEMP_DIR) CURDIR=$(CURDIR) DOCS_PATH=$(DOCS_PATH)"
+	@rm -rf $(TEMP_DIR); mkdir -p $(TEMP_DIR); cp -Lrf *.go $(TEMP_DIR)/.
+	@godocdown -o $(DOC_FILE) $(CUR_DIR)
+	@cat $(DOCS_PATH)/$(MD_COPYRIGHT_FILE) > $(DOC_FILE).tmp
+	@cat $(DOC_FILE) >> $(DOC_FILE).tmp
+	@mv -f $(DOC_FILE).tmp $(DOC_FILE)
+	@rm -rf $(TEMP_DIR)
+##############################################################################
+
+##############################################################################
+# For creating exes
+LOCAL_PKGS=$(wildcard $(CURDIR)/../pkg/*/*.go)
+
+#	@echo "SOURCES = $(SOURCES) LOCAL_PKGS=$(LOCAL_PKGS) OTHER=$(OTHERS)"
+exe: 
+	@ rm -rf $(BUILD_PATH); mkdir $(BUILD_PATH)
+	@go build -o $(BIN)
+##############################################################################
+
+##############################################################################
+# For cleaning exes
+clean:
+	@echo "Cleaning..."
+	@rm -rf $(BUILD_PATH)
+##############################################################################

@@ -1,0 +1,10 @@
+TOPTARGETS := all clean doc
+
+SUBDIRS := $(wildcard */.)
+
+$(TOPTARGETS): $(SUBDIRS)
+$(SUBDIRS):
+	echo "$(MAKE) -C $@ $(MAKECMDGOALS) CURDIR=$(CURDIR)"
+	$(MAKE) -C $@ $(MAKECMDGOALS)
+
+.PHONY: $(TOPTARGETS) $(SUBDIRS)
