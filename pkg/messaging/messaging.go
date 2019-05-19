@@ -39,6 +39,7 @@ func InitConsumer(broker, group string) {
 	}
 }
 
+//WriteMessage is used for writing messages onto messages bus
 func WriteMessage(message string, topic string) {
 	// Optional delivery channel, if not specified the Producer object's
 	// .Events channel is used.
@@ -104,10 +105,11 @@ func ReadMessage(topic string) []string {
 	return returnMessage
 }
 
+/*
 func DisconnectConsumer() {
 	utils.ConsumerObject.Close()
 }
 
 func DisconnectProducer() {
 	utils.ProducerObject.Close()
-}
+}*/

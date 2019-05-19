@@ -9,9 +9,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
-//RunApi is used to start listioning on the endpoint and
+//RunAPI is used to start listioning on the endpoint and
 // Call RunAPIOnRouter function
-func RunApi(waitgroup *sync.WaitGroup, endpoint string) {
+func RunAPI(waitgroup *sync.WaitGroup, endpoint string) {
 	r := mux.NewRouter()
 	RunAPIOnRouter(r)
 	err := http.ListenAndServe(endpoint, r)
@@ -38,7 +38,4 @@ func RunAPIOnRouter(r *mux.Router) {
 
 	apirouter.Methods("GET").Path("/notification/create").HandlerFunc(apihandler.GetCreateNotification)
 	apirouter.Methods("GET").Path("/notification/delete").HandlerFunc(apihandler.GetDeleteNotification)
-
-	apirouter.Methods("GET").Path("/swagger.json").HandlerFunc(apihandler.Swagger)
-
 }

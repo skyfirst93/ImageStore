@@ -4,7 +4,6 @@ import (
 	"ImageStore/pkg/messaging"
 	"ImageStore/pkg/utils"
 	"encoding/json"
-	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -85,6 +84,9 @@ func CreateAlbumHandler(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+//CreateImageHandler is handler function for creating an image
+//and return success or failure
+//Note add .png
 func CreateImageHandler(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 
@@ -118,6 +120,8 @@ func CreateImageHandler(w http.ResponseWriter, req *http.Request) {
 	writeResponse(w, "Album not Present", http.StatusConflict)
 }
 
+//DeleteAlbumHandler is handler function for deleting an album
+//and return suucess or failure
 func DeleteAlbumHandler(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	albumPath := utils.StoragePath + "/" + params["albumname"]
@@ -133,6 +137,8 @@ func DeleteAlbumHandler(w http.ResponseWriter, req *http.Request) {
 	writeResponse(w, "Album Not Present", http.StatusConflict)
 }
 
+//DeleteImageHandler is handler function for deleting an image
+//and return suucess or failure
 func DeleteImageHandler(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 
@@ -149,14 +155,14 @@ func DeleteImageHandler(w http.ResponseWriter, req *http.Request) {
 			writeResponse(w, "Image deleted", http.StatusOK)
 			messaging.WriteMessage("Image Deleted", "DELETE-IMAGE")
 			return
-		} else {
-			writeResponse(w, "Image Not Present", http.StatusConflict)
-			return
 		}
+		writeResponse(w, "Image Not Present", http.StatusConflict)
+		return
 	}
 	writeResponse(w, "Image not Present", http.StatusConflict)
 }
 
+//GetAlbumsList is handler function for getting list of albums
 func GetAlbumsList(w http.ResponseWriter, req *http.Request) {
 	var albums []string
 	files, err := ioutil.ReadDir(utils.StoragePath)
@@ -171,6 +177,8 @@ func GetAlbumsList(w http.ResponseWriter, req *http.Request) {
 	//Note return all albums
 }
 
+//GetImages is handler function for getting list of image
+//and returning the list of images
 func GetImages(w http.ResponseWriter, req *http.Request) {
 
 	var images []string
@@ -194,6 +202,8 @@ func GetImages(w http.ResponseWriter, req *http.Request) {
 	writeResponse(w, "Album not Present", http.StatusConflict)
 }
 
+//GetImagesByName is handler function for getting an image
+//and returning the image
 func GetImagesByName(w http.ResponseWriter, req *http.Request) {
 	var image []string
 
@@ -218,6 +228,9 @@ func GetImagesByName(w http.ResponseWriter, req *http.Request) {
 }
 
 // Note to put check on startup for storage path
+
+//GetCreateNotification is handler function for getting the list of notification
+//of Images created
 func GetCreateNotification(w http.ResponseWriter, req *http.Request) {
 	message := messaging.ReadMessage("IMAGE")
 	if message != nil {
@@ -228,6 +241,8 @@ func GetCreateNotification(w http.ResponseWriter, req *http.Request) {
 	//Note the return status
 }
 
+//GetDeleteNotification is handler function for getting the list of notification of
+//Images deleted
 func GetDeleteNotification(w http.ResponseWriter, req *http.Request) {
 	if message := messaging.ReadMessage("DELETE-IMAGE"); message != nil {
 		writeMultiValuesResponse(w, message, http.StatusOK)
@@ -235,10 +250,4 @@ func GetDeleteNotification(w http.ResponseWriter, req *http.Request) {
 	}
 	writeResponse(w, "No Delete Notification", http.StatusConflict)
 	//Note the return status
-}
-
-func Swagger(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("hepepepepeppepep")
-	w.Header().Set("Content-Type", "application/json")
-	http.ServeFile(w, r, "swagger.json")
 }

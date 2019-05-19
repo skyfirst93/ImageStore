@@ -16,12 +16,10 @@ exe:
 docker:	exe
 	@echo Building Docker $(IMAGE_NAME)....
 	sudo docker build -t $(IMAGE_NAME):$(IMAGE_LABEL) -f Dockerfile.$(IMAGE_NAME) .
-build:
-	go build . 
-
 run:
 	go run cmd/app.go
-
+docker-run:
+	docker run -it --env KAFKA_SERVICE=127.0.0.1 --env STORAGE_PATH=/app --name c2 imagestore:latest
 mtest: 
 	sh test.sh 
 
