@@ -1,0 +1,44 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: imagestore
+  namespace: "{{ .Values.namespace }}"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.strategy.maxSurge }}
+      maxUnavailable: {{ .Values.strategy.maxUnavailable }}
+    type: {{ .Values.strategy.type }}
+  template:
+    metadata:
+      labels:
+        app: imagestore
+    spec:
+      containers:
+      - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}" 
+        name: imagestore
+        imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+        ports:
+        - name: imagestore
+          containerPort: {{ .Values.service.port }} 
+          protocol: {{ .Values.service.protocol }}
+        env:
+        - name: STORAGE_PATH
+          value: "{{ .Values.StoragePath }}"
+        - name: KAFKA_SERVICE
+          value: "kafka.default.svc.cluster.local:9092"
+        volumeMounts:
+        - name: data 
+          mountPath: "{{ .Values.StoragePath }}"
+        #securityContext:
+         # runAsUser: 0
+          #fsGroup: 0
+
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+         claimName: imagestore-claim
+
+

@@ -1,0 +1,18 @@
+# Default values for k8s_manager.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+image:
+  pullPolicy: IfNotPresent
+
+namespace: default
+
+service:
+  kafka:
+    image: docker-registry.com:5000/wurstmeister/kafka:1.0.0
+    replicas: "1"
+    advertisedHostName: ""
+
+persistentVolume:
+  enabled: true 
+       
+

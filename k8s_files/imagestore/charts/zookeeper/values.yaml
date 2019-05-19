@@ -1,0 +1,15 @@
+# Default values for k8s_manager.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+image:
+  pullPolicy: IfNotPresent
+
+namespace: default
+
+service:
+  zookeeper:
+    image: docker-registry.com:5000/wurstmeister/zookeeper:latest
+    replicas: "1"
+
+persistentVolume:
+  enabled: true
