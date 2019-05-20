@@ -8,6 +8,7 @@ import (
 	"os"
 	"sync"
 )
+
 // @APIVersion 1.0.0
 // @APITitle IMAGE STORE SWAGGER API
 // @APIDescription Image store for albums and images
