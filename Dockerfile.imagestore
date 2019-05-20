@@ -13,10 +13,8 @@ RUN ./configure
 RUN make
 RUN make install
 WORKDIR /app
-#RUN rm -r /app/librdkafka
+RUN rm -r /app/librdkafka
 RUN rm librdkafka.tar.gz
 RUN export LD_LIBRARY_PATH=/usr/local/lib/
 RUN ldconfig
 CMD ["./imagestore"]
-
-

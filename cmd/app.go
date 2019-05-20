@@ -8,6 +8,21 @@ import (
 	"os"
 	"sync"
 )
+// @APIVersion 1.0.0
+// @APITitle IMAGE STORE SWAGGER API
+// @APIDescription Image store for albums and images
+// @Contact.name akash Pahal
+// @BasePath http://127.0.0.1:8081/api/store
+
+// @SubApi CREATE Album API [/create/album/{albumname}]
+// @Title CreateAlbumHandler
+// @Description Create album handler creates the album by name
+// @Accept  json
+// @Param   albumname     path    string     true        "Album Name"
+// @Success 200 {array}  writeResponse
+// @Failure 209 {object} writeResponse    "Album Name already present"
+// @Resource /api/store
+// @Router /api/store/create/album/{albumname} [get]
 
 func init() {
 	utils.MessageQueueAddr = os.Getenv("KAFKA_SERVICE")
@@ -29,6 +44,7 @@ func main() {
 	fmt.Println("magic is happening on port 8081")
 	var waitgroup sync.WaitGroup
 	waitgroup.Add(1)
+	//Note set 8081 port as env variable
 	go api.RunAPI(&waitgroup, "127.0.0.1:8081")
 	waitgroup.Wait()
 
