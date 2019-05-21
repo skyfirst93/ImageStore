@@ -1,0 +1,43 @@
+{
+    "apiVersion": "1.0.0",
+    "swaggerVersion": "1.2",
+    "basePath": "http://127.0.0.1:8081/api/store",
+    "apis": [
+        {
+            "path": "/api/store",
+            "description": "Create album handler creates the album by name"
+        },
+        {
+            "path": "/create/album/",
+            "description": "Create Album API"
+        },
+        {
+            "path": "/create/image/",
+            "description": "Create Image API"
+        },
+        {
+            "path": "/delete/image/",
+            "description": "Delete Image API"
+        },
+        {
+            "path": "/albums",
+            "description": "Get Albums list API"
+        },
+        {
+            "path": "/images/",
+            "description": "GetImagesByName API"
+        },
+        {
+            "path": "/api/store/notification/create",
+            "description": "Get Create Notification API"
+        },
+        {
+            "path": "/notification/delete",
+            "description": "GetDeleteNotification API"
+        }
+    ],
+    "info": {
+        "title": "IMAGE STORE SWAGGER API",
+        "description": "Image store for albums and images"
+    }
+}

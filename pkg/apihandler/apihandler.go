@@ -239,7 +239,6 @@ func GetImages(w http.ResponseWriter, req *http.Request) {
 
 	params := mux.Vars(req)
 	albumPath := utils.StoragePath + "/" + params["albumname"]
-
 	if albumpresent := checkIfPathExists(albumPath); albumpresent {
 		files, err := ioutil.ReadDir(albumPath)
 		if err != nil {
@@ -269,8 +268,6 @@ func GetImages(w http.ResponseWriter, req *http.Request) {
 // @Resource /api/store
 // @Router /api/store/images/{albumname}/{imagename} [GET]
 func GetImagesByName(w http.ResponseWriter, req *http.Request) {
-	var image []string
-
 	params := mux.Vars(req)
 	albumPath := utils.StoragePath + "/" + params["albumname"]
 	imagePath := albumPath + "/" + params["imagename"]
@@ -278,9 +275,7 @@ func GetImagesByName(w http.ResponseWriter, req *http.Request) {
 	if albumpresent := checkIfPathExists(albumPath); albumpresent {
 		if imagePresent := checkIfPathExists(imagePath); imagePresent {
 			// Note return image not name of images
-			image = append(image, params["imagename"])
 			http.ServeFile(w, req, imagePath)
-			//writeMultiValuesResponse(w, image, http.StatusOK)
 			return
 		}
 		writeResponse(w, "Image not Present", http.StatusNotFound)

@@ -47,6 +47,9 @@ func main() {
 	waitgroup.Add(1)
 	//Note set 8081 port as env variable
 	go api.RunAPI(&waitgroup, "127.0.0.1:8081")
+	waitgroup.Add(1)
+	//Note set 8081 port as env variable
+	go api.RunSwagger(&waitgroup, "127.0.0.1:8082")
 	waitgroup.Wait()
 
 }

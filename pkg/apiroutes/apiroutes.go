@@ -9,6 +9,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
+//RunSwagger is used to start listioning on the endpoint and
+// Call the swagger's API Definition
+func RunSwagger(waitgroup *sync.WaitGroup, endpoint string) {
+	r := mux.NewRouter()
+	fs := http.FileServer(http.Dir("./api/store/"))
+	r.PathPrefix("/api/store/").Handler(http.StripPrefix("/api/store/", fs))
+	err := http.ListenAndServe(endpoint, r)
+	if err != nil {
+		fmt.Println("Error-in-Swgger-Server", err)
+	}
+	waitgroup.Done()
+}
+
 //RunAPI is used to start listioning on the endpoint and
 // Call RunAPIOnRouter function
 func RunAPI(waitgroup *sync.WaitGroup, endpoint string) {
