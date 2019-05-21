@@ -78,8 +78,8 @@ func checkIfPathExists(path string) bool {
 // @Param   albumname     path    string     true        "Album Name"
 // @Success 200 {object}  Response
 // @Failure 209 {object} Response    "Album Name already present"
-// @Resource /api/store
-// @Router /api/store/create/album/{albumname} [POST]
+// @Resource /swagger
+// @Router /swagger/create/album/{albumname} [POST]
 func CreateAlbumHandler(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	albumPath := utils.StoragePath + "/" + params["albumname"]
@@ -104,8 +104,8 @@ func CreateAlbumHandler(w http.ResponseWriter, req *http.Request) {
 // @Param   imagename     path    string     true        "Image Name"
 // @Success 200 {object}  Response
 // @Failure 404 {object} Response    "Album Name already present"
-// @Resource /api/store
-// @Router /api/store/create/image/{albumname}/{imagename} [POST]
+// @Resource /swagger
+// @Router /swagger/create/image/{albumname}/{imagename} [POST]
 func CreateImageHandler(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 
@@ -148,8 +148,8 @@ func CreateImageHandler(w http.ResponseWriter, req *http.Request) {
 // @Param   albumname     path    string     true        "Album Name"
 // @Success 200 {object}  Response
 // @Failure 404 {object} Response    "Album Name already present"
-// @Resource /api/store
-// @Router /api/store/delete/album/{albumname} [DELETE]
+// @Resource /swagger
+// @Router /swagger/delete/album/{albumname} [DELETE]
 func DeleteAlbumHandler(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	albumPath := utils.StoragePath + "/" + params["albumname"]
@@ -175,8 +175,8 @@ func DeleteAlbumHandler(w http.ResponseWriter, req *http.Request) {
 // @Param   imagename     path    string     true        "Image Name"
 // @Success 200 {object}  Response
 // @Failure 404 {object} Response
-// @Resource /api/store
-// @Router /api/store/delete/image/{albumname}/{imagename} [DELETE]
+// @Resource /swagger
+// @Router /swagger/delete/image/{albumname}/{imagename} [DELETE]
 func DeleteImageHandler(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 
@@ -206,8 +206,8 @@ func DeleteImageHandler(w http.ResponseWriter, req *http.Request) {
 // @Description GetAlbumsList is handler function for getting list of albums
 // @Accept  json
 // @Success 200 {object}  MultiValuesResponse
-// @Resource /api/store
-// @Router /api/store/albums [GET]
+// @Resource /swagger
+// @Router /swagger/albums [GET]
 func GetAlbumsList(w http.ResponseWriter, req *http.Request) {
 	var albums []string
 	files, err := ioutil.ReadDir(utils.StoragePath)
@@ -231,8 +231,8 @@ func GetAlbumsList(w http.ResponseWriter, req *http.Request) {
 // @Param   albumname     path    string     true        "Album Name"
 // @Success 200 {object}  Response
 // @Failure 404 {object} Response
-// @Resource /api/store
-// @Router /api/store/images/{albumname}/ [GET]
+// @Resource /swagger
+// @Router /swagger/images/{albumname}/ [GET]
 func GetImages(w http.ResponseWriter, req *http.Request) {
 
 	var images []string
@@ -265,8 +265,8 @@ func GetImages(w http.ResponseWriter, req *http.Request) {
 // @Param   imagename     path    string     true        "Image Name"
 // @Success 200 {object}  Response
 // @Failure 404 {object} Response
-// @Resource /api/store
-// @Router /api/store/images/{albumname}/{imagename} [GET]
+// @Resource /swagger
+// @Router /swagger/images/{albumname}/{imagename} [GET]
 func GetImagesByName(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 	albumPath := utils.StoragePath + "/" + params["albumname"]
@@ -290,14 +290,14 @@ func GetImagesByName(w http.ResponseWriter, req *http.Request) {
 
 //GetCreateNotification is handler function for getting the list of notification
 //of Images created
-// @SubApi Get Create Notification API [/api/store/notification/create]
+// @SubApi Get Create Notification API [/swagger/notification/create]
 // @Title Get Create Notification Handler
 // @Description Get Create Notification is handler function for getting the list of notification
 // @Accept  json
 // @success 200 {object} MultiValuesResponse   "Create Notifications"
 // @Failure 204 {object} Response    "No more Create notification"
-// @Resource /api/store
-// @Router /api/store/notification/create [GET]
+// @Resource /swagger
+// @Router /swagger/notification/create [GET]
 func GetCreateNotification(w http.ResponseWriter, req *http.Request) {
 	message := messaging.ReadMessage("IMAGE")
 	if message != nil {
@@ -316,8 +316,8 @@ func GetCreateNotification(w http.ResponseWriter, req *http.Request) {
 // @Accept  json
 // @Success 200 {object}  MultiValuesResponse	"Delete Notifications"
 // @Failure 204 {object} Response    "No more Delete notification"
-// @Resource /api/store
-// @Router /api/store/notification/delete [GET]
+// @Resource /swagger
+// @Router /swagger/notification/delete [GET]
 func GetDeleteNotification(w http.ResponseWriter, req *http.Request) {
 	if message := messaging.ReadMessage("DELETE-IMAGE"); message != nil {
 		writeMultiValuesResponse(w, message, http.StatusOK)

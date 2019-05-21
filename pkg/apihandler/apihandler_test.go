@@ -93,6 +93,19 @@ func TestCreateAlbumHandler(t *testing.T) {
 	deleteAlbum("test1")
 }
 
+// BenchmarkCreateAlbumHandler for Beanchmarking of  album creation
+func BenchmarkCreateAlbumHandler(b *testing.B) {
+	b.ReportAllocs()
+	req, _ := http.NewRequest("POST", url, nil)
+	req = mux.SetURLVars(req, map[string]string{"albumname": "bench"})
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(CreateAlbumHandler)
+	for n := 0; n < b.N; n++ {
+		handler.ServeHTTP(rr, req)
+	}
+	deleteAlbum("test1")
+}
+
 //TestCreateImageHandler for testing image creation
 func TestCreateImageHandler(t *testing.T) {
 	createAlbum("Test1")
@@ -121,6 +134,21 @@ func TestCreateImageHandler(t *testing.T) {
 	}
 	deleteImage("Test1", "image.png")
 	deleteAlbum("Test1")
+}
+
+// BenchmarkCreateImageHandler for Beanchmarking of  Image creation
+func BenchmarkCreateImageHandler(b *testing.B) {
+	b.ReportAllocs()
+	createAlbum("bench")
+	req, _ := http.NewRequest("POST", url, nil)
+	req = mux.SetURLVars(req, map[string]string{"albumname": "bench", "imagename": "bench.png"})
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(CreateImageHandler)
+	for n := 0; n < b.N; n++ {
+		handler.ServeHTTP(rr, req)
+	}
+	deleteImage("bench", "bench.png")
+	deleteAlbum("bench")
 }
 
 //TestDeleteAlbumHandler is handler function for testing deleting an album
@@ -155,6 +183,20 @@ func TestDeleteAlbumHandler(t *testing.T) {
 	deleteAlbum("Test3")
 }
 
+// BenchmarkDeleteAlbumHandler for Beanchmarking of  Album Deletion
+func BenchmarkDeleteAlbumHandler(b *testing.B) {
+	b.ReportAllocs()
+	createAlbum("bench")
+	req, _ := http.NewRequest("DELETE", url, nil)
+	req = mux.SetURLVars(req, map[string]string{"albumname": "bench"})
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(DeleteAlbumHandler)
+	for n := 0; n < b.N; n++ {
+		handler.ServeHTTP(rr, req)
+	}
+	deleteAlbum("bench")
+}
+
 //TestDeleteImageHandler is handler function for testing deleting an image
 //and return suucess or failure
 func TestDeleteImageHandler(t *testing.T) {
@@ -170,7 +212,7 @@ func TestDeleteImageHandler(t *testing.T) {
 		{"Test20", "image.png", http.StatusNotFound},
 	}
 	for _, tc := range testCases {
-		req, err := http.NewRequest("POST", url, nil)
+		req, err := http.NewRequest("DELETE", url, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -184,6 +226,22 @@ func TestDeleteImageHandler(t *testing.T) {
 		}
 	}
 	deleteAlbum("Test1")
+}
+
+// BenchmarkDeleteImageHandler for Beanchmarking of  Image deletion
+func BenchmarkDeleteImageHandler(b *testing.B) {
+	b.ReportAllocs()
+	createAlbum("bench")
+	createImage("bench", "bench.png")
+	req, _ := http.NewRequest("POST", url, nil)
+	req = mux.SetURLVars(req, map[string]string{"albumname": "bench", "imagename": "bench.png"})
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(DeleteImageHandler)
+	for n := 0; n < b.N; n++ {
+		handler.ServeHTTP(rr, req)
+	}
+	deleteImage("bench", "bench.png")
+	deleteAlbum("bench")
 }
 
 //GetAlbumsList is handler function for testing getting list of albums
@@ -201,6 +259,19 @@ func TestGetAlbumsList(t *testing.T) {
 	}
 }
 
+// BenchmarkGetAlbumsList for Beanchmarking of getting album list
+func BenchmarkGetAlbumsList(b *testing.B) {
+	b.ReportAllocs()
+	createAlbum("bench")
+	req, _ := http.NewRequest("GET", url, nil)
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(GetAlbumsList)
+	for n := 0; n < b.N; n++ {
+		handler.ServeHTTP(rr, req)
+	}
+	deleteAlbum("bench")
+}
+
 //TestGetImages is handler function for testing getting list of image
 //and returning the list of images
 func TestGetImages(t *testing.T) {
@@ -214,7 +285,7 @@ func TestGetImages(t *testing.T) {
 		{"Test11", http.StatusNotFound},
 	}
 	for _, tc := range testCases {
-		req, err := http.NewRequest("POST", url, nil)
+		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -231,6 +302,22 @@ func TestGetImages(t *testing.T) {
 	deleteAlbum("Test1")
 }
 
+// BenchmarkGetImages for Beanchmarking of getting images in an album
+func BenchmarkGetImages(b *testing.B) {
+	b.ReportAllocs()
+	createAlbum("bench")
+	createImage("bench", "bench.png")
+	req, _ := http.NewRequest("GET", url, nil)
+	req = mux.SetURLVars(req, map[string]string{"albumname": "bench"})
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(GetImages)
+	for n := 0; n < b.N; n++ {
+		handler.ServeHTTP(rr, req)
+	}
+	deleteImage("bench", "bench.png")
+	deleteAlbum("bench")
+}
+
 //GetImagesByName is handler function for testing  getting an image
 //and returning the image
 func TestGetImagesByName(t *testing.T) {
@@ -241,12 +328,11 @@ func TestGetImagesByName(t *testing.T) {
 		imagename string
 		expected  int
 	}{
-		//		{"Test1", "image.png", http.StatusOK},
 		{"Test1", "image12.png", http.StatusNotFound},
 		{"Test20", "image.png", http.StatusNotFound},
 	}
 	for _, tc := range testCases {
-		req, err := http.NewRequest("POST", url, nil)
+		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -261,6 +347,22 @@ func TestGetImagesByName(t *testing.T) {
 	}
 	deleteImage("Test1", "image.png")
 	deleteAlbum("Test1")
+}
+
+// BenchmarkGetImagesByName for Beanchmarking of getting images by by name
+func BenchmarkGetImagesByName(b *testing.B) {
+	b.ReportAllocs()
+	createAlbum("bench")
+	createImage("bench", "bench.png")
+	req, _ := http.NewRequest("GET", url, nil)
+	req = mux.SetURLVars(req, map[string]string{"albumname": "bench", "imagename": "bench.png"})
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(GetImagesByName)
+	for n := 0; n < b.N; n++ {
+		handler.ServeHTTP(rr, req)
+	}
+	deleteImage("bench", "bench.png")
+	deleteAlbum("bench")
 }
 
 //TestGetCreateNotification is handler function for testing getting the list of notification
@@ -291,6 +393,22 @@ func TestGetCreateNotification(t *testing.T) {
 	deleteAlbum("Test1")
 }
 
+// BenchmarkGetCreateNotification for Beanchmarking of  Image creation
+func BenchmarkGetCreateNotification(b *testing.B) {
+	b.ReportAllocs()
+	createAlbum("bench")
+	createImage("bench", "bench.png")
+	req, _ := http.NewRequest("POST", url, nil)
+	req = mux.SetURLVars(req, map[string]string{"albumname": "bench", "imagename": "bench.png"})
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(GetCreateNotification)
+	for n := 0; n < b.N; n++ {
+		handler.ServeHTTP(rr, req)
+	}
+	deleteImage("bench", "bench.png")
+	deleteAlbum("bench")
+}
+
 //TestGetDeleteNotification is handler function for testing getting the list of notification of
 //Images deleted
 func TestGetDeleteNotification(t *testing.T) {
@@ -316,5 +434,20 @@ func TestGetDeleteNotification(t *testing.T) {
 			t.Errorf("handler returned wrong status code: got %v want %v",
 				status, tc.expected)
 		}
+	}
+}
+
+// BenchmarkGetDeleteNotification for Beanchmarking of getting delete Notification
+func BenchmarkGetDeleteNotification(b *testing.B) {
+	b.ReportAllocs()
+	createAlbum("bench")
+	createImage("bench", "bench.png")
+	deleteImage("bench", "bench.png")
+	deleteAlbum("bench")
+	req, _ := http.NewRequest("GET", url, nil)
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(GetDeleteNotification)
+	for n := 0; n < b.N; n++ {
+		handler.ServeHTTP(rr, req)
 	}
 }

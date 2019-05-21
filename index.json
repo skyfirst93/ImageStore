@@ -4,7 +4,7 @@
     "basePath": "http://127.0.0.1:8081/api/store",
     "apis": [
         {
-            "path": "/api/store",
+            "path": "/swagger",
             "description": "Create album handler creates the album by name"
         },
         {
@@ -28,7 +28,7 @@
             "description": "GetImagesByName API"
         },
         {
-            "path": "/api/store/notification/create",
+            "path": "/swagger/notification/create",
             "description": "Get Create Notification API"
         },
         {

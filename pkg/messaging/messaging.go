@@ -58,11 +58,7 @@ func WriteMessage(message string, topic string) {
 
 	if m.TopicPartition.Error != nil {
 		fmt.Printf("Delivery failed: %v\n", m.TopicPartition.Error)
-	} else {
-		fmt.Printf("Delivered message to topic %s [%d] at offset %v\n",
-			*m.TopicPartition.Topic, m.TopicPartition.Partition, m.TopicPartition.Offset)
 	}
-
 	close(deliveryChan)
 }
 
@@ -81,17 +77,17 @@ func ReadMessage(topic string) []string {
 		case ev := <-utils.ConsumerObject.Events():
 			switch e := ev.(type) {
 			case kafka.AssignedPartitions:
-				fmt.Fprintf(os.Stderr, "%% %v\n", e)
+				//fmt.Fprintf(os.Stderr, "%% %v\n", e)
 				utils.ConsumerObject.Assign(e.Partitions)
 			case kafka.RevokedPartitions:
-				fmt.Fprintf(os.Stderr, "%% %v\n", e)
+				//fmt.Fprintf(os.Stderr, "%% %v\n", e)
 				utils.ConsumerObject.Unassign()
 			case *kafka.Message:
-				fmt.Printf("%% Message on %s:\n%s\n",
-					e.TopicPartition, string(e.Value))
+				//fmt.Printf("%% Message on %s:\n%s\n",
+				//	e.TopicPartition, string(e.Value))
 				returnMessage = append(returnMessage, string(e.Value))
 			case kafka.PartitionEOF:
-				fmt.Printf("%% Reached %v\n", e)
+				//fmt.Printf("%% Reached %v\n", e)
 				run = false
 			case kafka.Error:
 				// Errors should generally be considered as informational, the client will try to automatically recover

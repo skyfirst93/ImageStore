@@ -19,7 +19,9 @@ image:	exe
 run:
 	go run cmd/app.go
 docker-run:
-	docker run -it --env KAFKA_SERVICE=127.0.0.1 --env STORAGE_PATH=/app -p 8081:8081 --name c2 imagestore:latest
+	#still need to be implemented 
+	docker rm -f c2
+	docker run -it --env KAFKA_SERVICE=<give_kakfa_conatiner_ip_and_port > --env STORAGE_PATH=/app -p 8081:8081 --name c2 imagestore:latest
 mtest: 
 	sh test.sh 
 
