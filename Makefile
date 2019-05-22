@@ -3,7 +3,6 @@ SUBDIRS := cmd pkg
 IMAGE_NAME := imagestore
 IMAGE_LABEL := latest
 
-
 # Static code analyzers
 GOLINT := golint
 GOFMT := gofmt

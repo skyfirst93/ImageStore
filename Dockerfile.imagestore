@@ -10,7 +10,8 @@ RUN make
 RUN make install
 ENV LD_LIBRARY_PATH=/usr/local/lib
 RUN rm -rf /tmp/librdkafka
- 
+
+#stage2  
 FROM ubuntu:16.04
 COPY --from=librdkafka /usr/local/lib /usr/local/lib
 ENV LD_LIBRARY_PATH=/usr/local/lib

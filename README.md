@@ -42,3 +42,14 @@ PASS
 coverage: 72.7% of statements
 ok  	ImageStore/pkg/messaging	11.286s
 ```
+
+
+make unit-test
+```
+go test -cover ./...
+ok  	ImageStore/cmd	0.022s	coverage: 40.9% of statements [no tests to run]
+ok  	ImageStore/pkg/apihandler	17.150s	coverage: 86.9% of statements
+ok  	ImageStore/pkg/apiroutes	0.005s	coverage: 62.5% of statements
+ok  	ImageStore/pkg/messaging	2.239s	coverage: 69.7% of statements
+ok  	ImageStore/pkg/utils	0.004s	coverage: 0.0% of statements [no tests to run
+```
