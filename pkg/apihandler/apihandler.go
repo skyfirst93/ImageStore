@@ -95,7 +95,6 @@ func CreateAlbumHandler(w http.ResponseWriter, req *http.Request) {
 
 //CreateImageHandler is handler function for creating an image
 //and return success or failure
-//Note add .png
 // @SubApi Create Image API [/create/image/{albumname}/{imagename}]
 // @Title Create Image Handler
 // @Description Create Image handler creates the image by name
@@ -219,7 +218,6 @@ func GetAlbumsList(w http.ResponseWriter, req *http.Request) {
 		albums = append(albums, filePointer.Name())
 	}
 	writeMultiValuesResponse(w, albums, http.StatusOK)
-	//Note return all albums
 }
 
 //GetImages is handler function for getting list of image
@@ -250,7 +248,6 @@ func GetImages(w http.ResponseWriter, req *http.Request) {
 		}
 		writeMultiValuesResponse(w, images, http.StatusOK)
 		return
-		//Note return images not list of images
 	}
 	writeResponse(w, "Album not Present", http.StatusNotFound)
 }
@@ -274,7 +271,6 @@ func GetImagesByName(w http.ResponseWriter, req *http.Request) {
 
 	if albumpresent := checkIfPathExists(albumPath); albumpresent {
 		if imagePresent := checkIfPathExists(imagePath); imagePresent {
-			// Note return image not name of images
 			http.ServeFile(w, req, imagePath)
 			return
 		}
@@ -282,11 +278,7 @@ func GetImagesByName(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	writeResponse(w, "Album not Present", http.StatusNotFound)
-	//Note the return status
-
 }
-
-// Note to put check on startup for storage path
 
 //GetCreateNotification is handler function for getting the list of notification
 //of Images created
@@ -305,7 +297,6 @@ func GetCreateNotification(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	writeResponse(w, "No Create Notification", http.StatusNoContent)
-	//Note the return status
 }
 
 //GetDeleteNotification is handler function for getting the list of notification of
@@ -324,5 +315,4 @@ func GetDeleteNotification(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	writeResponse(w, "No Delete Notification", http.StatusNoContent)
-	//Note the return status
 }

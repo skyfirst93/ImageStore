@@ -28,13 +28,12 @@ spec:
         - name: STORAGE_PATH
           value: "{{ .Values.StoragePath }}"
         - name: KAFKA_SERVICE
-          value: "kafka.default.svc.cluster.local:9092"
+          value: "{{ .Values.KafkaService }}"
+        - name: SERVICE_PORT
+          value: "{{ .Values.ServicePort }}"
         volumeMounts:
         - name: data 
           mountPath: "{{ .Values.StoragePath }}"
-        #securityContext:
-         # runAsUser: 0
-          #fsGroup: 0
 
       volumes:
       - name: data

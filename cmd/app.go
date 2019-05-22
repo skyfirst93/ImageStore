@@ -5,6 +5,7 @@ import (
 	"ImageStore/pkg/messaging"
 	"ImageStore/pkg/utils"
 	"fmt"
+	"log"
 	"os"
 	"sync"
 )
@@ -34,8 +35,20 @@ func init() {
 	if utils.StoragePath == "" {
 		fmt.Println("Environment variable STORAGE_PATH undefined")
 		os.Exit(1)
+	} else {
+		//Check if path exists and if not create it
+		if _, err := os.Stat(utils.StoragePath); err != nil {
+			if err := os.MkdirAll(utils.StoragePath, 0755); err != nil {
+				log.Fatal(err)
+			}
+		}
 	}
 
+	utils.ServicePort = os.Getenv("SERVICE_PORT")
+	if utils.ServicePort == "" {
+		fmt.Println("Environment variable SERVICE_PORT undefined")
+		os.Exit(1)
+	}
 	messaging.InitProducer(utils.MessageQueueAddr)
 	messaging.InitConsumer(utils.MessageQueueAddr, "group")
 }
@@ -44,8 +57,7 @@ func main() {
 	fmt.Println("magic is happening on port 8081")
 	var waitgroup sync.WaitGroup
 	waitgroup.Add(1)
-	//Note set 8081 port as env variable
-	go api.RunAPI(&waitgroup, "127.0.0.1:8081")
+	go api.RunAPI(&waitgroup, ":"+utils.ServicePort)
 	waitgroup.Wait()
 
 }

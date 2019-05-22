@@ -24,4 +24,5 @@ config:
   kafkaServicePort: 9092
 
 StoragePath: /data/
-
+KafkaService: kafka.default.svc.cluster.local:9092
+ServicePort: 8081

@@ -13,3 +13,6 @@ var StoragePath string
 
 //MessageQueueAddr is the address of kafkabus
 var MessageQueueAddr string
+
+//ServicePort is the port number on which the service will be running
+var ServicePort string

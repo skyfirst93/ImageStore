@@ -15,13 +15,11 @@ func InitProducer(broker string) {
 		fmt.Printf("Failed to create producer: %s\n", err)
 		os.Exit(1)
 	}
-	//Note implement logging
 }
 
 //InitConsumer creates and returns the Consumer object
 func InitConsumer(broker, group string) {
 	var err error
-	//Note change the default offset
 	utils.ConsumerObject, err = kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers":               broker,
 		"group.id":                        group,
@@ -44,7 +42,6 @@ func WriteMessage(message string, topic string) {
 	// Optional delivery channel, if not specified the Producer object's
 	// .Events channel is used.
 	deliveryChan := make(chan kafka.Event)
-	//Note
 	if err := utils.ProducerObject.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 		Value:          []byte(message),

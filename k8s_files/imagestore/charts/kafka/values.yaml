@@ -10,7 +10,7 @@ service:
   kafka:
     image: docker-registry.com:5000/wurstmeister/kafka:1.0.0
     replicas: "1"
-    advertisedHostName: ""
+    advertisedHostName: "172.27.172.96"
 
 persistentVolume:
   enabled: true 
